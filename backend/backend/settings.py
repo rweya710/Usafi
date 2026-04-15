@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'django_celery_beat',
     
     # Local apps
     'users',
@@ -85,15 +86,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# Use MySQL in production, SQLite for development
-if config('USE_MYSQL', default=False, cast=bool) or not DEBUG:
+# Use MySQL if explicitly configured, otherwise SQLite
+if config('DB_HOST', default='').strip():
+    # MySQL production configuration
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': config('DB_NAME', default='usafilink_db'),
             'USER': config('DB_USER', default='usafilink_user'),
             'PASSWORD': config('DB_PASSWORD', default='strongpassword'),
-            'HOST': config('DB_HOST', default='localhost'),
+            'HOST': config('DB_HOST'),
             'PORT': config('DB_PORT', default='3306'),
             'OPTIONS': {
                 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -102,7 +104,7 @@ if config('USE_MYSQL', default=False, cast=bool) or not DEBUG:
         }
     }
 else:
-    # Development with SQLite
+    # Development with SQLite (default)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
