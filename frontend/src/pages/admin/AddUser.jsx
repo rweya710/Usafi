@@ -60,6 +60,9 @@ const AddUser = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+<<<<<<< HEAD
+        if (formData.password.length < 8) {
+=======
         // When editing, password is optional and empty string means don't update it
         if (!isEditing && formData.password.length < 8) {
             toast.error('Password is too short! It must contain at least 8 characters.');
@@ -67,6 +70,7 @@ const AddUser = () => {
         }
 
         if (isEditing && formData.password && formData.password.length < 8) {
+>>>>>>> 89df15ec222ddb2aab9a75b82ba75e9a6e95bbac
             toast.error('Password is too short! It must contain at least 8 characters.');
             return;
         }
@@ -147,7 +151,11 @@ const AddUser = () => {
                                         required
                                         disabled={isEditing}
                                         placeholder="johndoe"
+<<<<<<< HEAD
+                                        className="w-full pl-12 pr-4 py-4 bg-gray-50/50 border-none rounded-2xl font-bold text-gray-900 focus:ring-4 focus:ring-emerald-500/10 placeholder:text-gray-300 transition-all"
+=======
                                         className="w-full pl-12 pr-4 py-4 bg-gray-50/50 border-none rounded-2xl font-bold text-gray-900 focus:ring-4 focus:ring-emerald-500/10 placeholder:text-gray-300 transition-all disabled:opacity-60"
+>>>>>>> 89df15ec222ddb2aab9a75b82ba75e9a6e95bbac
                                         value={formData.username}
                                         onChange={handleChange}
                                     />
@@ -217,7 +225,11 @@ const AddUser = () => {
                                         required
                                         disabled={isEditing}
                                         placeholder="john@example.com"
+<<<<<<< HEAD
+                                        className="w-full pl-12 pr-4 py-4 bg-gray-50/50 border-none rounded-2xl font-bold text-gray-900 focus:ring-4 focus:ring-emerald-500/10 placeholder:text-gray-300 transition-all"
+=======
                                         className="w-full pl-12 pr-4 py-4 bg-gray-50/50 border-none rounded-2xl font-bold text-gray-900 focus:ring-4 focus:ring-emerald-500/10 placeholder:text-gray-300 transition-all disabled:opacity-60"
+>>>>>>> 89df15ec222ddb2aab9a75b82ba75e9a6e95bbac
                                         value={formData.email}
                                         onChange={handleChange}
                                     />
@@ -248,8 +260,13 @@ const AddUser = () => {
                                     <input
                                         type="password"
                                         name="password"
+<<<<<<< HEAD
+                                        required
+                                        placeholder="••••••••"
+=======
                                         required={!isEditing}
                                         placeholder={isEditing ? "Leave empty for no change" : "••••••••"}
+>>>>>>> 89df15ec222ddb2aab9a75b82ba75e9a6e95bbac
                                         className="w-full pl-12 pr-4 py-4 bg-gray-50/50 border-none rounded-2xl font-bold text-gray-900 focus:ring-4 focus:ring-emerald-500/10 placeholder:text-gray-300 transition-all"
                                         value={formData.password}
                                         onChange={handleChange}

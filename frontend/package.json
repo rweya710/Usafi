@@ -7,9 +7,15 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "mobile:sync": "npm run build && npx cap sync android",
+    "mobile:open": "npx cap open android",
+    "mobile:run": "npm run mobile:sync && npx cap run android",
+    "apk:debug": "npm run mobile:sync && cd android && gradlew.bat assembleDebug"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
     "@hookform/resolvers": "^5.2.2",
     "axios": "^1.13.2",
     "framer-motion": "^12.38.0",
@@ -23,6 +29,7 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.3.0",
     "@eslint/js": "^9.39.1",
     "@tailwindcss/postcss": "^4.1.x",
     "@types/react": "^19.2.5",

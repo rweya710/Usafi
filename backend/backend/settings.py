@@ -62,6 +62,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Duplicate corsheaders entries removed (handled earlier)
+CORS_ALLOW_ALL_ORIGINS = True   # quick dev mode
+# or restrict:
+# CORS_ALLOWED_ORIGINS = [
+#     "http://10.0.2.2:8000",
+#     "http://localhost:8000",
+# ]
+
+
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [

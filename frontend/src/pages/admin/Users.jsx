@@ -147,6 +147,8 @@ const AdminUsers = () => {
     setShowActions(null);
   };
 
+<<<<<<< HEAD
+=======
   const handleDeleteUser = async (userId, userName) => {
     if (window.confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
       try {
@@ -161,6 +163,7 @@ const AdminUsers = () => {
     }
   };
 
+>>>>>>> 89df15ec222ddb2aab9a75b82ba75e9a6e95bbac
   const handleExport = () => {
     if (filteredUsers.length === 0) {
       toast.error("No data to export");
