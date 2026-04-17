@@ -290,8 +290,16 @@ EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24
 
 # Celery Configuration
 CELERY_TASK_ALWAYS_EAGER = config('CELERY_TASK_ALWAYS_EAGER', default=not DEBUG, cast=bool)  # False in production, True in dev
-CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+
+# Robust Broker handling for Free Tier (may not have Redis)
+PROD_BROKER_URL = config('CELERY_BROKER_URL', default=None)
+if IS_PRODUCTION and not PROD_BROKER_URL:
+    # If in production and no broker provided, use memory (since we are in EAGER mode anyway)
+    CELERY_BROKER_URL = 'memory://'
+    CELERY_RESULT_BACKEND = 'cache+memory://'
+else:
+    CELERY_BROKER_URL = PROD_BROKER_URL or 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
