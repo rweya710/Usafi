@@ -432,27 +432,4 @@ class ToggleOnlineView(APIView):
             'detail': f"You are now {'online' if request.user.is_online else 'offline'}."
         })
 
-class BootstrapAdminView(APIView):
-    permission_classes = [AllowAny]
-    
-    def get(self, request):
-        username = "admin"
-        email = "admin@usafilink.com"
-        password = "AdminChangeMe123!"
-        
-        if User.objects.filter(username=username).exists():
-            return Response({"detail": "Admin already exists."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        User.objects.create_superuser(
-            username=username,
-            email=email,
-            password=password,
-            role='admin',
-            is_email_verified=True
-        )
-        return Response({
-            "detail": "Admin created successfully!",
-            "username": username,
-            "password": password,
-            "message": "CHANGE YOUR PASSWORD IMMEDIATELY."
-        })
+
