@@ -16,7 +16,6 @@ const bookingSchema = z.object({
   scheduled_time: z.string().min(1, 'Time is required'),
   special_instructions: z.string().optional(),
 });
-
 import { useLocation } from 'react-router-dom';
 
 const BookingForm = ({ onSuccess }) => {

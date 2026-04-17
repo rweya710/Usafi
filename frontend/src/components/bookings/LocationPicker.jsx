@@ -17,13 +17,24 @@ const LocationPicker = ({ onLocationSelect, initialPosition }) => {
         if (!mapContainer.current) return;
 
         // Initialize map
-        map.current = new mapboxgl.Map({
-            container: mapContainer.current,
-            style: 'mapbox://styles/mapbox/streets-v12',
-            center: [position.lng, position.lat],
-            zoom: 14,
-            attributionControl: false
-        });
+        if (!ACCESS_TOKEN) {
+            console.error('Mapbox access token is missing');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            map.current = new mapboxgl.Map({
+                container: mapContainer.current,
+                style: 'mapbox://styles/mapbox/streets-v12',
+                center: [position.lng, position.lat],
+                zoom: 14,
+                attributionControl: false
+            });
+        } catch (error) {
+            console.error('Error initializing Mapbox:', error);
+            setLoading(false);
+        }
 
         // Add controls
         map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
