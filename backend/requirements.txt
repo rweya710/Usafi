@@ -50,5 +50,5 @@ vine==5.1.0
 wcwidth==0.2.14
 whitenoise==6.6.0
 django-celery-beat==2.5.0
-psycopg2-binary==2.9.9
+psycopg[binary]
 qrcode[pil]==7.4.2
