@@ -95,8 +95,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# Use MySQL if explicitly configured, otherwise SQLite
-if config('DB_HOST', default='').strip():
+import dj_database_url
+
+# Use PostgreSQL if DATABASE_URL is provided, else use MySQL if configured, otherwise SQLite
+if config('DATABASE_URL', default='').strip():
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+    }
+elif config('DB_HOST', default='').strip():
     # MySQL production configuration
     DATABASES = {
         'default': {
