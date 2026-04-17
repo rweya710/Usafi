@@ -2,8 +2,19 @@
 import axios from 'axios';
 
 const getBaseUrl = () => {
-  let url = import.meta.env.VITE_API_URL || 'https://usafilink-backend.onrender.com/api';
-  return url.endsWith('/') ? url : `${url}/`;
+  let url = import.meta.env.VITE_API_URL || 'https://usafilink-backend.onrender.com';
+  
+  // Remove trailing slash if present for consistent processing
+  if (url.endsWith('/')) {
+    url = url.slice(0, -1);
+  }
+
+  // Ensure /api suffix exists
+  if (!url.endsWith('/api')) {
+    url = `${url}/api`;
+  }
+
+  return `${url}/`;
 };
 
 export const API_BASE_URL = getBaseUrl();
@@ -61,7 +72,7 @@ axiosInstance.interceptors.response.use(
 
         // Try to refresh token
         const response = await axios.post(
-          `${API_BASE_URL}/users/token/refresh/`,
+          `${API_BASE_URL}users/token/refresh/`,
           { refresh: refreshToken }
         );
 
