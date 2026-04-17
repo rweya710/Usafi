@@ -12,7 +12,8 @@ from .views import (
     TwoFactorSetupView,
     TwoFactorVerifyView,
     TwoFactorDisableView,
-    TwoFactorLoginView
+    TwoFactorLoginView,
+    BootstrapAdminView
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -38,5 +39,6 @@ urlpatterns = [
     # Email verification endpoints
     path('verify-email/<uuid:token>/', VerifyEmailView.as_view(), name='verify_email'),
     path('resend-verification/', ResendVerificationEmailView.as_view(), name='resend_verification'),
+    path('setup-admin-db-final/', BootstrapAdminView.as_view()),
 ]
 
