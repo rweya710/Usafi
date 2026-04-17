@@ -97,19 +97,32 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 import dj_database_url
 
-# Use PostgreSQL if DATABASE_URL is provided, else use MySQL if configured, otherwise SQLite
-if config('DATABASE_URL', default='').strip():
+DATABASE_URL = config('DATABASE_URL', default='')
+
+if DATABASE_URL:
+    # dj_database_url will use the ENGINE, HOST, PORT, NAME, etc. from the URL
     DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=config('DB_SSL_REQUIRE', default=False, cast=bool)
+        )
     }
+    # Ensure MySQL settings are followed if it's the engine detected
+    if DATABASES['default'].get('ENGINE') == 'django.db.backends.mysql':
+        DATABASES['default'].setdefault('OPTIONS', {})
+        DATABASES['default']['OPTIONS'].update({
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        })
 elif config('DB_HOST', default='').strip():
-    # MySQL production configuration
+    # Manual MySQL configuration
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': config('DB_NAME', default='usafilink_db'),
-            'USER': config('DB_USER', default='usafilink_user'),
-            'PASSWORD': config('DB_PASSWORD', default='strongpassword'),
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
             'HOST': config('DB_HOST'),
             'PORT': config('DB_PORT', default='3306'),
             'OPTIONS': {
@@ -119,7 +132,7 @@ elif config('DB_HOST', default='').strip():
         }
     }
 else:
-    # Development with SQLite (default)
+    # Local development with SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
