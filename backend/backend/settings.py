@@ -97,10 +97,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 import dj_database_url
 
-DATABASE_URL = config('DATABASE_URL', default='')
+# Prioritize REAL environment variables (os.environ) over .env file for sensitive production settings
+# Render sets the 'RENDER' environment variable
+IS_PRODUCTION = os.environ.get('RENDER') or os.environ.get('RAILWAY_ENVIRONMENT')
+
+# Use OS environment directly for DATABASE_URL to avoid being misled by committed .env files
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
-    # dj_database_url will use the ENGINE, HOST, PORT, NAME, etc. from the URL
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
@@ -108,15 +112,14 @@ if DATABASE_URL:
             ssl_require=config('DB_SSL_REQUIRE', default=False, cast=bool)
         )
     }
-    # Ensure MySQL settings are followed if it's the engine detected
     if DATABASES['default'].get('ENGINE') == 'django.db.backends.mysql':
         DATABASES['default'].setdefault('OPTIONS', {})
         DATABASES['default']['OPTIONS'].update({
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             'charset': 'utf8mb4',
         })
-elif config('DB_HOST', default='').strip():
-    # Manual MySQL configuration
+elif config('DB_HOST', default='').strip() and not (IS_PRODUCTION and config('DB_HOST') == 'localhost'):
+    # Manual MySQL configuration (only use if not accidentally 'localhost' in production)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
