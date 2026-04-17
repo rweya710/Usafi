@@ -1,0 +1,6 @@
+[phases.setup]
+nixPkgs = [
+  "pkg-config",
+  "mysql80",
+  "mysql80.dev"
+]
