@@ -180,9 +180,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR.parent / "frontend/dist",  # Frontend is a sibling to backend folder
-]
+STATICFILES_DIRS = []  # Backend service is separate from frontend service
+
+# Ensure build.sh can run collectstatic even if dirs are empty
+if not (BASE_DIR / 'static').exists():
+    os.makedirs(BASE_DIR / 'static', exist_ok=True)
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
