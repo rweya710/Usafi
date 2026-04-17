@@ -1,6 +1,6 @@
 [phases.setup]
-nixPkgs = [
+aptPkgs = [
   "pkg-config",
-  "mariadb",
-  "mariadb-connector-c"
+  "default-libmysqlclient-dev",
+  "build-essential"
 ]
