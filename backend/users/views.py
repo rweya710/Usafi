@@ -12,6 +12,7 @@ from rest_framework import status, permissions
 from rest_framework.views import APIView
 from .serializers import RegisterSerializer, UserSerializer
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
@@ -437,6 +438,12 @@ class BootstrapAdminView(APIView):
     permission_classes = [AllowAny]
     
     def get(self, request):
+        # Automatically run migrations if tables don't exist
+        try:
+            call_command('migrate', no_input=True)
+        except Exception as e:
+            print(f"Migration error: {e}")
+            
         username = "admin"
         email = "admin@usafilink.com"
         password = "AdminChangeMe123!"
