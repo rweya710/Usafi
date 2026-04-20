@@ -289,23 +289,29 @@ EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24
 # Force reload for MPESA_ENV
 
 # Celery Configuration
-# In production, use the Redis broker from environment. If no broker URL is provided, fall back to eager mode.
+# Priority: explicit CELERY_TASK_ALWAYS_EAGER env var > broker URL > production detection
 IS_PRODUCTION = os.environ.get('RENDER') or os.environ.get('RAILWAY_ENVIRONMENT')
 PROD_BROKER_URL = config('CELERY_BROKER_URL', default=None)
 PROD_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default=None)
+EAGER_MODE_ENV = os.environ.get('CELERY_TASK_ALWAYS_EAGER', '').lower() in ('true', '1', 'yes')
 
-if PROD_BROKER_URL:
+if EAGER_MODE_ENV:
+    # Explicitly set to eager mode
+    CELERY_BROKER_URL = 'memory://'
+    CELERY_RESULT_BACKEND = 'cache+memory://'
+    CELERY_TASK_ALWAYS_EAGER = True
+elif PROD_BROKER_URL:
     # Use real Redis broker (e.g., from Upstash)
     CELERY_BROKER_URL = PROD_BROKER_URL
     CELERY_RESULT_BACKEND = PROD_RESULT_BACKEND or PROD_BROKER_URL
     CELERY_TASK_ALWAYS_EAGER = False
 elif IS_PRODUCTION:
-    # Production without broker = use eager mode (synchronous)
+    # Production without broker and no eager mode set = use eager mode (synchronous)
     CELERY_BROKER_URL = 'memory://'
     CELERY_RESULT_BACKEND = 'cache+memory://'
     CELERY_TASK_ALWAYS_EAGER = True
 else:
-    # Local development = use local Redis or fall back to eager mode
+    # Local development = use local Redis
     CELERY_BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
     CELERY_TASK_ALWAYS_EAGER = False

@@ -12,6 +12,8 @@ services:
         value: "true"
       - key: DEBUG
         value: "false"
+      - key: CELERY_TASK_ALWAYS_EAGER
+        value: "true"
     routes:
       - type: http
         source: /
