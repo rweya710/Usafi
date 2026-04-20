@@ -289,27 +289,26 @@ EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24
 # Force reload for MPESA_ENV
 
 # Celery Configuration
-# In production, we only use EAGER mode (sync) if we don't have a Redis broker.
-# If you add a broker, this becomes False so tasks run in the background worker.
+# In production, use the Redis broker from environment. If no broker URL is provided, fall back to eager mode.
 IS_PRODUCTION = os.environ.get('RENDER') or os.environ.get('RAILWAY_ENVIRONMENT')
 PROD_BROKER_URL = config('CELERY_BROKER_URL', default=None)
-CELERY_TASK_ALWAYS_EAGER_ENV = config('CELERY_TASK_ALWAYS_EAGER', default=None, cast=lambda x: x.lower() in ('true', '1', 'yes') if isinstance(x, str) else bool(x))
+PROD_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default=None)
 
-if CELERY_TASK_ALWAYS_EAGER_ENV is not None:
-    # Explicit configuration from environment variable takes precedence
-    CELERY_TASK_ALWAYS_EAGER = CELERY_TASK_ALWAYS_EAGER_ENV
-    CELERY_BROKER_URL = 'memory://'
-    CELERY_RESULT_BACKEND = 'cache+memory://'
-elif IS_PRODUCTION and not PROD_BROKER_URL:
-    # Production without broker = use eager mode
-    CELERY_TASK_ALWAYS_EAGER = True
-    CELERY_BROKER_URL = 'memory://'
-    CELERY_RESULT_BACKEND = 'cache+memory://'
-else:
-    # Use real background processing if broker exists or in local dev
+if PROD_BROKER_URL:
+    # Use real Redis broker (e.g., from Upstash)
+    CELERY_BROKER_URL = PROD_BROKER_URL
+    CELERY_RESULT_BACKEND = PROD_RESULT_BACKEND or PROD_BROKER_URL
     CELERY_TASK_ALWAYS_EAGER = False
-    CELERY_BROKER_URL = PROD_BROKER_URL or 'redis://localhost:6379/0'
-    CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+elif IS_PRODUCTION:
+    # Production without broker = use eager mode (synchronous)
+    CELERY_BROKER_URL = 'memory://'
+    CELERY_RESULT_BACKEND = 'cache+memory://'
+    CELERY_TASK_ALWAYS_EAGER = True
+else:
+    # Local development = use local Redis or fall back to eager mode
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    CELERY_TASK_ALWAYS_EAGER = False
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
