@@ -84,11 +84,17 @@ class DriverMatchingService:
         booking.status = 'searching_driver'
         booking.save(update_fields=['status'])
         
+        # Debug: Check available drivers
+        total_drivers = User.objects.filter(role='driver').count()
+        online_drivers = User.objects.filter(role='driver', is_online=True).count()
+        with_location = User.objects.filter(role='driver', is_online=True, location__isnull=False).count()
+        logger.info(f"Driver availability - Total: {total_drivers}, Online: {online_drivers}, With location: {with_location}")
+        
         # Find nearest drivers
         nearest_drivers = cls.find_nearest_drivers(booking)
         
         if not nearest_drivers:
-            logger.warning(f"No drivers found within {cls.MAX_SEARCH_RADIUS_KM}km for booking {booking.id}")
+            logger.warning(f"No drivers found within {cls.MAX_SEARCH_RADIUS_KM}km for booking {booking.id} at lat={booking.latitude}, lon={booking.longitude}")
             booking.status = 'no_driver_available'
             booking.save(update_fields=['status'])
             return False

@@ -3,12 +3,14 @@ import { bookingsAPI } from '../api/bookings';
 import { authAPI } from '../api/auth';
 import { toast } from 'react-hot-toast';
 import { MapPin, Clock, DollarSign, Navigation, XCircle, CheckCircle, Power } from 'lucide-react';
+import { useDriverTracking } from '../hooks/useDriverTracking';
 
 const DriverJobs = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeRequest, setActiveRequest] = useState(null);
   const [isOffline, setIsOffline] = useState(false);
+  const { startTracking, stopTracking } = useDriverTracking();
 
   const fetchJobs = async () => {
     try {
@@ -36,6 +38,7 @@ const DriverJobs = () => {
   const handleGoOnline = async () => {
     try {
       await authAPI.toggleOnline();
+      startTracking(); // Start location tracking when coming online
       toast.success('You are now ONLINE');
       setIsOffline(false);
       fetchJobs();

@@ -169,6 +169,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Create booking and automatically initiate Uber-like driver search"""
         booking = serializer.save(customer=self.request.user, status='searching_driver')
+        logger.info(f"Booking {booking.id} created at lat={booking.latitude}, lon={booking.longitude}")
         
         # Send confirmation SMS asynchronously
         try:
@@ -180,9 +181,9 @@ class BookingViewSet(viewsets.ModelViewSet):
         try:
             from .tasks import initiate_driver_search_task
             initiate_driver_search_task.delay(booking.id)
-            logger.info(f"Driver search initiated for booking {booking.id}")
+            logger.info(f"Driver search task queued for booking {booking.id}")
         except Exception as e:
-            logger.error(f"Failed to initiate driver search: {str(e)}")
+            logger.error(f"Failed to initiate driver search: {str(e)}", exc_info=True)
     
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def accept(self, request, pk=None):

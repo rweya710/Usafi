@@ -14,6 +14,7 @@ import RouteMap from '../components/RouteMap';
 import toast from 'react-hot-toast';
 import { bookingsAPI } from '../api/bookings';
 import { authAPI } from '../api/auth';
+import { useDriverTracking } from '../hooks/useDriverTracking';
 import Profile from './Profile';
 
 const DriverDashboard = () => {
@@ -23,6 +24,7 @@ const DriverDashboard = () => {
   const [currentJob, setCurrentJob] = useState(null);
   const [user, setUser] = useState(null);
   const [availableJobs, setAvailableJobs] = useState([]);
+  const { startTracking, stopTracking } = useDriverTracking();
   const [summary, setSummary] = useState({
     jobs_done: 0,
     total_jobs: 0,
@@ -216,13 +218,17 @@ const DriverDashboard = () => {
                   try {
                     const res = await authAPI.toggleOnline();
                     setIsOnline(res.is_online);
-                    // Update available jobs visibility immediately upon toggle
-                    if (!res.is_online) {
-                      setAvailableJobs([]);
-                    } else {
+                    
+                    // Start/stop location tracking
+                    if (res.is_online) {
+                      startTracking();
                       // Refresh to fetch jobs if turning online
                       fetchDriverData();
+                    } else {
+                      stopTracking();
+                      setAvailableJobs([]);
                     }
+                    
                     toast.success(res.is_online ? 'You are now Online' : 'You are now Offline', {
                       icon: res.is_online ? '🔵' : '⚪',
                       style: { borderRadius: '12px', fontWeight: 'bold' }
