@@ -291,18 +291,26 @@ EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24
 # Celery Configuration
 # In production, we only use EAGER mode (sync) if we don't have a Redis broker.
 # If you add a broker, this becomes False so tasks run in the background worker.
-PROD_BROKER_URL = config('CELERY_BROKER_URL', default=None)
 IS_PRODUCTION = os.environ.get('RENDER') or os.environ.get('RAILWAY_ENVIRONMENT')
+PROD_BROKER_URL = config('CELERY_BROKER_URL', default=None)
+CELERY_TASK_ALWAYS_EAGER_ENV = config('CELERY_TASK_ALWAYS_EAGER', default=None, cast=lambda x: x.lower() in ('true', '1', 'yes') if isinstance(x, str) else bool(x))
 
-if IS_PRODUCTION and not PROD_BROKER_URL:
+if CELERY_TASK_ALWAYS_EAGER_ENV is not None:
+    # Explicit configuration from environment variable takes precedence
+    CELERY_TASK_ALWAYS_EAGER = CELERY_TASK_ALWAYS_EAGER_ENV
+    CELERY_BROKER_URL = 'memory://'
+    CELERY_RESULT_BACKEND = 'cache+memory://'
+elif IS_PRODUCTION and not PROD_BROKER_URL:
+    # Production without broker = use eager mode
     CELERY_TASK_ALWAYS_EAGER = True
     CELERY_BROKER_URL = 'memory://'
     CELERY_RESULT_BACKEND = 'cache+memory://'
 else:
     # Use real background processing if broker exists or in local dev
-    CELERY_TASK_ALWAYS_EAGER = config('CELERY_TASK_ALWAYS_EAGER', default=False, cast=bool)
+    CELERY_TASK_ALWAYS_EAGER = False
     CELERY_BROKER_URL = PROD_BROKER_URL or 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
